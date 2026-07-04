@@ -9,7 +9,7 @@ try:
     SUPABASE_URL = st.secrets["SUPABASE_URL"]
     SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 except KeyError:
-    st.error("Streamlit Secrets에 SUPABASE_URL과 SUPABASE_KEY를 설정해주세요.")
+    st.error("Streamlit Secrets에 SUPABASE_URL and SUPABASE_KEY를 설정해주세요.")
     st.stop()
 
 # 2. Supabase 클라이언트 초기화
@@ -110,35 +110,4 @@ elif menu == "설문 결과 확인하기":
             st.markdown("---")
             st.subheader("📈 간단 통계 그래프")
             
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                if "어느 학교를 다니나요" in df.columns:
-                    st.write("**[학교급별 참여 비율]**")
-                    school_counts = df["어느 학교를 다니나요"].value_counts().reset_index()
-                    school_counts.columns = ["학교 종류", "학생 수"]
-                    
-                    chart1 = alt.Chart(school_counts).mark_bar(color="#1f77b4").encode(
-                        x=alt.X("학교 종류:N", axis=alt.Axis(labelAngle=0)),
-                        y="학생 수:Q"
-                    ).properties(width="container")
-                    st.altair_chart(chart1, use_container_width=True)
-                    
-            with col2:
-                if "학교 가는 것을 좋아하나요?" in df.columns:
-                    st.write("**[학교가 좋은지 여부]**")
-                    like_counts = df["학교 가는 것을 좋아하나요?"].value_counts().reset_index()
-                    like_counts.columns = ["답변", "학생 수"]
-                    
-                    chart2 = alt.Chart(like_counts).mark_bar(color="#1f77b4").encode(
-                        x=alt.X("답변:N", axis=alt.Axis(labelAngle=0)),
-                        y="학생 수:Q"
-                    ).properties(width="container")
-                    st.altair_chart(chart2, use_container_width=True)
-            
-            # --- 학교별 가장 좋아하는 과목 분석 표 ---
-            st.markdown("---")
-            st.subheader("🔍 학교 종류별 가장 좋아하는 과목 현황")
-            
-            check_cols = ["어느 학교를 다니나요", "학교에서 가장 좋아하는 과목은 무엇인가요?"]
-            if all(col in df.columns for col in check_cols):
+            col1, col
