@@ -119,4 +119,9 @@ elif menu == "설문 결과 확인하기":
                     
             with col2:
                 if "학교 가는 것을 좋아하나요?" in df.columns:
-                    st.write("**[학교가 좋은지 여부]**
+                    st.write("**[학교가 좋은지 여부]**")
+                    like_counts = df["학교 가는 것을 좋아하나요?"].value_counts()
+                    st.bar_chart(like_counts)
+                    
+    except Exception as e:
+        st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {e}")
