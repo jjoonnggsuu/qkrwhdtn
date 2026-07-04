@@ -58,7 +58,7 @@ COLUMN_MAPPING = {
 # =========================
 # 메인 제어부 (화면 전환용 세션)
 # =========================
-st.title("🔋 스마트폰 충전 습관 및 배터리 수명 DB")
+st.title("🔋 스마트폰 충전 습관")
 
 if "menu" not in st.session_state:
     st.session_state.menu = "📝 설문지 입력"
