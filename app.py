@@ -121,14 +121,32 @@ elif menu == "설문 결과 확인하기":
                     ).properties(width="container")
                     st.altair_chart(chart2, use_container_width=True)
             
+            # --- 학교 종류별 좋아하는 과목 퍼센트(%) 분석 표 ---
             st.markdown("---")
-            st.subheader("🔍 학교 종류별 가장 좋아하는 과목 현황")
+            st.subheader("🔍 학교 종류별 가장 좋아하는 과목 선호도 (%)")
             
-            check_cols = ["어느 학교를 다니나요", "학교에서 가장 좋아하는 과목은 무엇인가요?"]
-            if all(col in df.columns for col in check_cols):
-                analysis_df = df.groupby(check_cols).size().reset_index(name="학생 수")
-                analysis_df = analysis_df.sort_values(by="어느 학교를 다니나요")
-                st.dataframe(analysis_df, use_container_width=True, hide_index=True)
+            s_col = "어느 학교를 다니나요"
+            j_col = "학교에서 가장 좋아하는 과목은 무엇인가요?"
+            
+            if s_col in df.columns and j_col in df.columns:
+                # 학교별 그룹화를 진행한 후 내부 과목의 비율(퍼센트) 계산
+                pct_df = df.groupby(s_col)[j_col].value_counts(normalize=True).reset_index(name="비율")
+                
+                # 보기 좋게 100을 곱해 퍼센트 단위로 변환하고 소수점 첫째 자리까지 반올림
+                pct_df["선호도 (%)"] = (pct_df["비율"] * 100).round(1).astype(str) + "%"
+                
+                # 학생들에게 친숙하게 개수(명)도 함께 표시하기 위해 그룹 데이터 병합
+                count_df = df.groupby(s_col)[j_col].value_counts().reset_index(name="학생 수")
+                final_analysis = pd.merge(pct_df, count_df, on=[s_col, j_col])
+                
+                # 분석에 필요 없는 원본 '비율' 컬럼 제거 및 정렬
+                final_analysis = final_analysis.drop(columns=["비율"])
+                final_analysis = final_analysis.sort_values(by=[s_col, "학생 수"], ascending=[True, False])
+                
+                # 컬럼 이름 예쁘게 변경
+                final_analysis.columns = ["학교 구분", "선호 과목", "선호도 (%)", "응답자 수"]
+                
+                st.dataframe(final_analysis, use_container_width=True, hide_index=True)
             else:
                 st.info("학교 정보 또는 좋아하는 과목 데이터가 부족하여 분석 표를 표시할 수 없습니다.")
                     
