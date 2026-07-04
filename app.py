@@ -2,6 +2,7 @@ import streamlit as st
 from supabase import create_client, Client
 import datetime
 import pandas as pd
+import altair as alt
 
 # 1. Streamlit Secrets에서 Supabase 연결 정보 가져오기
 try:
@@ -92,7 +93,7 @@ elif menu == "설문 결과 확인하기":
             # 오래된 순서(시간 순서)대로 1번부터 번호 매기기
             df["번호"] = range(1, len(df) + 1)
             
-            # 표에 보여줄 컬럼 지정 ('타임스탬프'는 완전히 제외하고 '번호'를 맨 앞에 배치)
+            # 표에 보여줄 컬럼 지정
             display_cols = ["번호", "어느 학교를 다니나요", "학교 가는 것을 좋아하나요?", "학교에서 가장 좋아하는 과목은 무엇인가요?", "그 과목을 얼마나 좋아하나요?", "그 과목은 일주일에 몇번 들어있나요?"]
             
             # 실제 데이터프레임에 있는 컬럼만 필터링하여 순서대로 가져오기
@@ -101,7 +102,7 @@ elif menu == "설문 결과 확인하기":
             # 총 참여자 수 시각화
             st.metric(label="총 참여 학생 수", value=f"{len(df)}명")
             
-            # 전체 응답 데이터 표 출력 (hide_index=True로 판다스 기본 인덱스도 숨김)
+            # 전체 응답 데이터 표 출력
             st.subheader("📝 전체 응답 데이터")
             st.dataframe(df_display, use_container_width=True, hide_index=True)
             
@@ -114,14 +115,30 @@ elif menu == "설문 결과 확인하기":
             with col1:
                 if "어느 학교를 다니나요" in df.columns:
                     st.write("**[학교급별 참여 비율]**")
-                    school_counts = df["어느 학교를 다니나요"].value_counts()
-                    st.bar_chart(school_counts)
+                    # 데이터를 카운트하고 데이터프레임 형태로 변환
+                    school_counts = df["어느 학교를 다니나요"].value_counts().reset_index()
+                    school_counts.columns = ["학교 종류", "학생 수"]
+                    
+                    # Altair를 이용해 x축 글씨 각도를 0도(가로)로 고정한 바 차트 생성
+                    chart1 = alt.Chart(school_counts).mark_bar(color="#1f77b4").encode(
+                        x=alt.X("학교 종류:N", axis=alt.Axis(labelAngle=0)),
+                        y="학생 수:Q"
+                    ).properties(width="container")
+                    st.altair_chart(chart1, use_container_width=True)
                     
             with col2:
                 if "학교 가는 것을 좋아하나요?" in df.columns:
                     st.write("**[학교가 좋은지 여부]**")
-                    like_counts = df["학교 가는 것을 좋아하나요?"].value_counts()
-                    st.bar_chart(like_counts)
+                    # 데이터를 카운트하고 데이터프레임 형태로 변환
+                    like_counts = df["학교 가는 것을 좋아하나요?"].value_counts().reset_index()
+                    like_counts.columns = ["답변", "학생 수"]
+                    
+                    # Altair를 이용해 x축 글씨 각도를 0도(가로)로 고정한 바 차트 생성
+                    chart2 = alt.Chart(like_counts).mark_bar(color="#1f77b4").encode(
+                        x=alt.X("답변:N", axis=alt.Axis(labelAngle=0)),
+                        y="학생 수:Q"
+                    ).properties(width="container")
+                    st.altair_chart(chart2, use_container_width=True)
                     
     except Exception as e:
         st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {e}")
