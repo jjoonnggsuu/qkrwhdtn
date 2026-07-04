@@ -14,7 +14,7 @@ except KeyError:
 # 2. Supabase 클라이언트 초기화
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# --- 사이드바 메뉴 메뉴 구성 ---
+# --- 사이드바 메뉴 구성 ---
 st.sidebar.title("📋 메뉴 선택")
 menu = st.sidebar.radio(
     "이동할 페이지를 선택하세요:",
@@ -55,29 +55,7 @@ if menu == "설문조사 참여하기":
         if not favorite_subject.strip():
             st.warning("가장 좋아하는 과목을 입력해주세요.")
         else:
+            # 저장할 데이터 딕셔너리 생성
             survey_data = {
                 "타임스탬프": datetime.datetime.now().isoformat(),
                 "어느 학교를 다니나요": school_type,
-                "학교 가는 것을 좋아하나요?": like_school,
-                "학교에서 가장 좋아하는 과목은 무엇인가요?": favorite_subject,
-                "그 과목을 얼마나 좋아하나요?": love_level,
-                "그 과목은 일주일에 몇번 들어있나요?": class_frequency
-            }
-            
-            try:
-                response = supabase.table("qkrwhdtn123@").insert(survey_data).execute()
-                st.success("🎉 설문이 성공적으로 제출되었습니다! 결과 확인 페이지에서 실시간 데이터를 확인해보세요.")
-            except Exception as e:
-                st.error(f"데이터 저장 중 오류가 발생했습니다: {e}")
-
-# =========================================================================
-# 페이지 2: 설문 결과 확인하기
-# =========================================================================
-elif menu == "설문 결과 확인하기":
-    st.title("📊 설문조사 결과 통계")
-    st.write("Supabase 데이터베이스에 저장된 실시간 설문 결과입니다.")
-    
-    try:
-        # Supabase에서 전체 데이터 가져오기
-        # (주의: 만약 RLS를 켜두셨다면 익명 사용자의 SELECT 권한도 똑같이 풀어주거나 RLS를 꺼야 데이터가 불러와집니다.)
-        response = supabase.table("qkrwhdtn12
