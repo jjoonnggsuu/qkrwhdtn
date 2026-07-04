@@ -55,7 +55,7 @@ if menu == "설문조사 참여하기":
         if not favorite_subject.strip():
             st.warning("가장 좋아하는 과목을 입력해주세요.")
         else:
-            # 저장할 데이터 딕셔너리 생성 (오류 없이 확실하게 중괄호 처리)
+            # 저장할 데이터 딕셔너리 생성
             survey_data = {
                 "타임스탬프": datetime.datetime.now().isoformat(),
                 "어느 학교를 다니나요": school_type,
@@ -66,7 +66,7 @@ if menu == "설문조사 참여하기":
             }
             
             try:
-                # Supabase 테이블에 데이터 삽입 (문자열 잘림 없이 한 줄로 처리)
+                # 이 부분의 들여쓰기를 정확하게 맞추었습니다.
                 response = supabase.table("qkrwhdtn123@").insert(survey_data).execute()
                 st.success("🎉 설문이 성공적으로 제출되었습니다! 결과 확인 페이지에서 실시간 데이터를 확인해보세요.")
             except Exception as e:
@@ -80,4 +80,15 @@ elif menu == "설문 결과 확인하기":
     st.write("Supabase 데이터베이스에 저장된 실시간 설문 결과입니다.")
     
     try:
-        # Sup
+        # Supabase에서 전체 데이터 가져오기
+        response = supabase.table("qkrwhdtn123@").select("*").order("타임스탬프", descending=True).execute()
+        data = response.data
+        
+        if not data:
+            st.info("아직 제출된 설문 데이터가 없습니다. 첫 번째 설문을 제출해 보세요!")
+        else:
+            # 판다스 데이터프레임으로 변환
+            df = pd.DataFrame(data)
+            
+            # 노출할 컬럼 순서 지정
+            display_cols =
