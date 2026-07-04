@@ -56,7 +56,6 @@ if menu == "설문조사 참여하기":
         if not favorite_subject.strip():
             st.warning("가장 좋아하는 과목을 입력해주세요.")
         else:
-            # 저장할 데이터 딕셔너리 생성
             survey_data = {
                 "타임스탬프": datetime.datetime.now().isoformat(),
                 "어느 학교를 다니나요": school_type,
@@ -80,27 +79,58 @@ elif menu == "설문 결과 확인하기":
     st.write("Supabase 데이터베이스에 저장된 실시간 설문 결과입니다.")
     
     try:
-        # Supabase에서 전체 데이터 가져오기 (시간 순서대로 정렬)
         response = supabase.table("qkrwhdtn123@").select("*").order("타임스탬프", desc=False).execute()
         data = response.data
         
         if not data:
             st.info("아직 제출된 설문 데이터가 없습니다. 첫 번째 설문을 제출해 보세요!")
         else:
-            # 판다스 데이터프레임으로 변환
             df = pd.DataFrame(data)
-            
-            # 오래된 순서(시간 순서)대로 1번부터 번호 매기기
             df["번호"] = range(1, len(df) + 1)
             
-            # 표에 보여줄 컬럼 지정
             display_cols = ["번호", "어느 학교를 다니나요", "학교 가는 것을 좋아하나요?", "학교에서 가장 좋아하는 과목은 무엇인가요?", "그 과목을 얼마나 좋아하나요?", "그 과목은 일주일에 몇번 들어있나요?"]
-            
-            # 실제 데이터프레임에 있는 컬럼만 필터링하여 순서대로 가져오기
             df_display = df[[col for col in display_cols if col in df.columns]]
             
-            # 총 참여자 수 시각화
             st.metric(label="총 참여 학생 수", value=f"{len(df)}명")
             
-            # 전체 응답 데이터 표 출력
-            st.subheader("📝 전체 응답 데이터
+            st.subheader("📝 전체 응답 데이터")
+            st.dataframe(df_display, use_container_width=True, hide_index=True)
+            
+            st.markdown("---")
+            st.subheader("📈 간단 통계 그래프")
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                if "어느 학교를 다니나요" in df.columns:
+                    st.write("**[학교급별 참여 비율]**")
+                    school_counts = df["어느 학교를 다니나요"].value_counts().reset_index()
+                    school_counts.columns = ["학교 종류", "학생 수"]
+                    chart1 = alt.Chart(school_counts).mark_bar(color="#1f77b4").encode(
+                        x=alt.X("학교 종류:N", axis=alt.Axis(labelAngle=0)), y="학생 수:Q"
+                    ).properties(width="container")
+                    st.altair_chart(chart1, use_container_width=True)
+                    
+            with col2:
+                if "학교 가는 것을 좋아하나요?" in df.columns:
+                    st.write("**[학교가 좋은지 여부]**")
+                    like_counts = df["학교 가는 것을 좋아하나요?"].value_counts().reset_index()
+                    like_counts.columns = ["답변", "학생 수"]
+                    chart2 = alt.Chart(like_counts).mark_bar(color="#1f77b4").encode(
+                        x=alt.X("답변:N", axis=alt.Axis(labelAngle=0)), y="학생 수:Q"
+                    ).properties(width="container")
+                    st.altair_chart(chart2, use_container_width=True)
+            
+            st.markdown("---")
+            st.subheader("🔍 학교 종류별 가장 좋아하는 과목 현황")
+            
+            check_cols = ["어느 학교를 다니나요", "학교에서 가장 좋아하는 과목은 무엇인가요?"]
+            if all(col in df.columns for col in check_cols):
+                analysis_df = df.groupby(check_cols).size().reset_index(name="학생 수")
+                analysis_df = analysis_df.sort_values(by="어느 학교를 다니나요")
+                st.dataframe(analysis_df, use_container_width=True, hide_index=True)
+            else:
+                st.info("학교 정보 또는 좋아하는 과목 데이터가 부족하여 분석 표를 표시할 수 없습니다.")
+                    
+    except Exception as e:
+        st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {e}")
