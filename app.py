@@ -89,7 +89,36 @@ elif menu == "설문 결과 확인하기":
             # 판다스 데이터프레임으로 변환
             df = pd.DataFrame(data)
             
-            # 노출할 컬럼 순서 지정
-            display_cols = [
-                "타임스탬프", "어느 학교를 다니나요", "학교 가는 것을 좋아하나요?", 
-                "학교에서 가장 좋아하는 과목은 무엇인가요?", "그 과목을 얼마나 좋아하나요?",
+            # 노출할 컬럼 리스트 생성 (줄바꿈 없이 한 줄로 콤마와 괄호를 명확히 처리)
+            display_cols = ["타임스탬프", "어느 학교를 다니나요", "학교 가는 것을 좋아하나요?", "학교에서 가장 좋아하는 과목은 무엇인가요?", "그 과목을 얼마나 좋아하나요?", "그 과목은 일주일에 몇번 들어있나요?"]
+            
+            # 실제 테이블에 존재하는 컬럼만 안전하게 필터링
+            df_display = df[[col for col in display_cols if col in df.columns]]
+            
+            # 총 참여자 수 시각화
+            st.metric(label="총 참여 학생 수", value=f"{len(df)}명")
+            
+            # 전체 응답 데이터 표 출력
+            st.subheader("📝 전체 응답 데이터")
+            st.dataframe(df_display, use_container_width=True)
+            
+            # 그래프 출력
+            st.markdown("---")
+            st.subheader("📈 간단 통계 그래프")
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                if "어느 학교를 다니나요" in df.columns:
+                    st.write("**[학교급별 참여 비율]**")
+                    school_counts = df["어느 학교를 다니나요"].value_counts()
+                    st.bar_chart(school_counts)
+                    
+            with col2:
+                if "학교 가는 것을 좋아하나요?" in df.columns:
+                    st.write("**[학교가 좋은지 여부]**")
+                    like_counts = df["학교 가는 것을 좋아하나요?"].value_counts()
+                    st.bar_chart(like_counts)
+                    
+    except Exception as e:
+        st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {e}")
