@@ -9,7 +9,7 @@ try:
     SUPABASE_URL = st.secrets["SUPABASE_URL"]
     SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 except KeyError:
-    st.error("Streamlit Secrets에 SUPABASE_URL and SUPABASE_KEY를 설정해주세요.")
+    st.error("Streamlit Secrets에 SUPABASE_URL과 SUPABASE_KEY를 설정해주세요.")
     st.stop()
 
 # 2. Supabase 클라이언트 초기화
@@ -103,11 +103,4 @@ elif menu == "설문 결과 확인하기":
             st.metric(label="총 참여 학생 수", value=f"{len(df)}명")
             
             # 전체 응답 데이터 표 출력
-            st.subheader("📝 전체 응답 데이터")
-            st.dataframe(df_display, use_container_width=True, hide_index=True)
-            
-            # 그래프 출력
-            st.markdown("---")
-            st.subheader("📈 간단 통계 그래프")
-            
-            col1, col
+            st.subheader("📝 전체 응답 데이터
