@@ -89,7 +89,7 @@ elif menu == "설문 결과 확인하기":
             # 판다스 데이터프레임으로 변환
             df = pd.DataFrame(data)
             
-            # 노출할 컬럼 순서 지정 (누락 없이 대괄호가 완전히 닫히도록 수정 완료)
+            # 노출할 컬럼 순서 지정
             display_cols = [
                 "타임스탬프", "어느 학교를 다니나요", "학교 가는 것을 좋아하나요?", 
                 "학교에서 가장 좋아하는 과목은 무엇인가요?", "그 과목을 얼마나 좋아하나요?", 
@@ -113,3 +113,15 @@ elif menu == "설문 결과 확인하기":
             
             with col1:
                 if "어느 학교를 다니나요" in df.columns:
+                    st.write("**[학교급별 참여 비율]**")
+                    school_counts = df["어느 학교를 다니나요"].value_counts()
+                    st.bar_chart(school_counts)
+                    
+            with col2:
+                if "학교 가는 것을 좋아하나요?" in df.columns:
+                    st.write("**[학교가 좋은지 여부]**")
+                    like_counts = df["학교 가는 것을 좋아하나요?"].value_counts()
+                    st.bar_chart(like_counts)
+                    
+    except Exception as e:
+        st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {e}")
