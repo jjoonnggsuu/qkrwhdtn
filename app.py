@@ -115,30 +115,9 @@ elif menu == "설문 결과 확인하기":
             with col1:
                 if "어느 학교를 다니나요" in df.columns:
                     st.write("**[학교급별 참여 비율]**")
-                    # 데이터를 카운트하고 데이터프레임 형태로 변환
                     school_counts = df["어느 학교를 다니나요"].value_counts().reset_index()
                     school_counts.columns = ["학교 종류", "학생 수"]
                     
-                    # Altair를 이용해 x축 글씨 각도를 0도(가로)로 고정한 바 차트 생성
                     chart1 = alt.Chart(school_counts).mark_bar(color="#1f77b4").encode(
                         x=alt.X("학교 종류:N", axis=alt.Axis(labelAngle=0)),
-                        y="학생 수:Q"
-                    ).properties(width="container")
-                    st.altair_chart(chart1, use_container_width=True)
-                    
-            with col2:
-                if "학교 가는 것을 좋아하나요?" in df.columns:
-                    st.write("**[학교가 좋은지 여부]**")
-                    # 데이터를 카운트하고 데이터프레임 형태로 변환
-                    like_counts = df["학교 가는 것을 좋아하나요?"].value_counts().reset_index()
-                    like_counts.columns = ["답변", "학생 수"]
-                    
-                    # Altair를 이용해 x축 글씨 각도를 0도(가로)로 고정한 바 차트 생성
-                    chart2 = alt.Chart(like_counts).mark_bar(color="#1f77b4").encode(
-                        x=alt.X("답변:N", axis=alt.Axis(labelAngle=0)),
-                        y="학생 수:Q"
-                    ).properties(width="container")
-                    st.altair_chart(chart2, use_container_width=True)
-                    
-    except Exception as e:
-        st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {e}")
+                        y="학생 수
