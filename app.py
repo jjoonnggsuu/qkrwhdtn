@@ -79,7 +79,7 @@ elif menu == "설문 결과 확인하기":
     st.write("Supabase 데이터베이스에 저장된 실시간 설문 결과입니다.")
     
     try:
-        # Supabase에서 전체 데이터 가져오기 (descending=True 대신 desc=True로 수정 완료)
+        # Supabase에서 전체 데이터 가져오기
         response = supabase.table("qkrwhdtn123@").select("*").order("타임스탬프", desc=True).execute()
         data = response.data
         
@@ -92,25 +92,4 @@ elif menu == "설문 결과 확인하기":
             # 노출할 컬럼 순서 지정
             display_cols = [
                 "타임스탬프", "어느 학교를 다니나요", "학교 가는 것을 좋아하나요?", 
-                "학교에서 가장 좋아하는 과목은 무엇인가요?", "그 과목을 얼마나 좋아하나요?", 
-                "그 과목은 일주일에 몇번 들어있나요?"
-            ]
-            # 실제 테이블에 존재하는 컬럼만 안전하게 필터링
-            df_display = df[[col for col in display_cols if col in df.columns]]
-            
-            # 총 참여자 수 시각화
-            st.metric(label="총 참여 학생 수", value=f"{len(df)}명")
-            
-            # 전체 응답 데이터 표 출력
-            st.subheader("📝 전체 응답 데이터")
-            st.dataframe(df_display, use_container_width=True)
-            
-            # 그래프 출력
-            st.markdown("---")
-            st.subheader("📈 간단 통계 그래프")
-            
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                if "어느 학교를 다니나요" in df.columns:
-                    st.write("**
+                "학교에서 가장 좋아하는 과목은 무엇인가요?", "그 과목을 얼마나 좋아하나요?",
