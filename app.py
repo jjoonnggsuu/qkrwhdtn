@@ -55,7 +55,29 @@ if menu == "설문조사 참여하기":
         if not favorite_subject.strip():
             st.warning("가장 좋아하는 과목을 입력해주세요.")
         else:
-            # 저장할 데이터 딕셔너리 생성
+            # 저장할 데이터 딕셔너리 생성 (오류 없이 확실하게 중괄호 처리)
             survey_data = {
                 "타임스탬프": datetime.datetime.now().isoformat(),
                 "어느 학교를 다니나요": school_type,
+                "학교 가는 것을 좋아하나요?": like_school,
+                "학교에서 가장 좋아하는 과목은 무엇인가요?": favorite_subject,
+                "그 과목을 얼마나 좋아하나요?": love_level,
+                "그 과목은 일주일에 몇번 들어있나요?": class_frequency
+            }
+            
+            try:
+                # Supabase 테이블에 데이터 삽입 (문자열 잘림 없이 한 줄로 처리)
+                response = supabase.table("qkrwhdtn123@").insert(survey_data).execute()
+                st.success("🎉 설문이 성공적으로 제출되었습니다! 결과 확인 페이지에서 실시간 데이터를 확인해보세요.")
+            except Exception as e:
+                st.error(f"데이터 저장 중 오류가 발생했습니다: {e}")
+
+# =========================================================================
+# 페이지 2: 설문 결과 확인하기
+# =========================================================================
+elif menu == "설문 결과 확인하기":
+    st.title("📊 설문조사 결과 통계")
+    st.write("Supabase 데이터베이스에 저장된 실시간 설문 결과입니다.")
+    
+    try:
+        # Sup
