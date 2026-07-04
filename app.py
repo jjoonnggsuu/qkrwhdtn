@@ -3,8 +3,6 @@ from supabase import create_client, Client
 import datetime
 
 # 1. Streamlit Secrets에서 Supabase 연결 정보 가져오기
-import os
-
 try:
     SUPABASE_URL = st.secrets["SUPABASE_URL"]
     SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
@@ -20,23 +18,27 @@ st.title("🏫 학교 생활 설문조사")
 st.write("아래 설문에 답하고 제출 버튼을 눌러주세요.")
 
 with st.form("survey_form", clear_on_submit=True):
-    # 질문 1: 어느 학교를 다니나요? (텍스트 입력)
-    school_name = st.text_input("어느 학교를 다니나요?", placeholder="예: 한국고등학교")
+    # [수정] 질문 1: 주관식에서 라디오 버튼(선택형)으로 변경
+    school_type = st.radio(
+        "어느 학교를 다니나요?",
+        ["초등학교", "중학교", "고등학교", "대학교/기타"],
+        index=2  # 기본값으로 '고등학교'가 선택되어 있도록 설정
+    )
     
-    # 질문 2: 학교 가는 것을 좋아하나요? (라디오 버튼)
+    # 질문 2: 학교 가는 것을 좋아하나요?
     like_school = st.radio(
         "학교 가는 것을 좋아하나요?",
         ["매우 좋다", "좋다", "보통이다", "싫다", "매우 싫다"],
         index=2
     )
     
-    # 질문 3: 학교에서 가장 좋아하는 과목은 무엇인가요? (텍스트 입력)
+    # 질문 3: 학교에서 가장 좋아하는 과목은 무엇인가요?
     favorite_subject = st.text_input("학교에서 가장 좋아하는 과목은 무엇인가요?", placeholder="예: 수학, 물리")
     
-    # 질문 4: 그 과목을 얼마나 좋아하나요? (슬라이더 1~5점)
+    # 질문 4: 그 과목을 얼마나 좋아하나요?
     love_level = st.slider("그 과목을 얼마나 좋아하나요? (1: 조금, 5: 매우 많이)", 1, 5, 3)
     
-    # 질문 5: 그 과목은 일주일에 몇번 들어있나요? (숫자 입력)
+    # 질문 5: 그 과목은 일주일에 몇번 들어있나요?
     class_frequency = st.number_input("그 과목은 일주일에 몇번 들어있나요?", min_value=0, max_value=20, value=3, step=1)
     
     # 제출 버튼
@@ -44,14 +46,14 @@ with st.form("survey_form", clear_on_submit=True):
 
 # 4. 데이터 제출 로직
 if submitted:
-    if not school_name.strip() or not favorite_subject.strip():
-        st.warning("모든 주관식 문항에 답변을 입력해주세요.")
+    # 주관식인 favorite_subject가 비어있는지만 체크합니다.
+    if not favorite_subject.strip():
+        st.warning("가장 좋아하는 과목을 입력해주세요.")
     else:
         # 데이터베이스에 저장할 데이터 객체 생성
-        # 타임스탬프는 현재 시간(ISO 형식)으로 자동 생성하여 저장합니다.
         survey_data = {
             "타임스탬프": datetime.datetime.now().isoformat(),
-            "어느 학교를 다니나요": school_name,
+            "어느 학교를 다니나요": school_type,  # 선택한 학교 종류('초등학교', '중학교' 등)가 저장됩니다.
             "학교 가는 것을 좋아하나요?": like_school,
             "학교에서 가장 좋아하는 과목은 무엇인가요?": favorite_subject,
             "그 과목을 얼마나 좋아하나요?": love_level,
@@ -60,7 +62,6 @@ if submitted:
         
         try:
             # Supabase 테이블에 데이터 삽입
-            # 테이블 이름에 특수문자가 있으므로 문자열 그대로 정확히 입력해야 합니다.
             response = supabase.table("qkrwhdtn123@").insert(survey_data).execute()
             
             # 성공 메시지
