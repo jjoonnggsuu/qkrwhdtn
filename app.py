@@ -79,8 +79,8 @@ elif menu == "설문 결과 확인하기":
     st.write("Supabase 데이터베이스에 저장된 실시간 설문 결과입니다.")
     
     try:
-        # Supabase에서 전체 데이터 가져오기
-        response = supabase.table("qkrwhdtn123@").select("*").order("타임스탬프", descending=True).execute()
+        # Supabase에서 전체 데이터 가져오기 (descending=True 대신 desc=True로 수정 완료)
+        response = supabase.table("qkrwhdtn123@").select("*").order("타임스탬프", desc=True).execute()
         data = response.data
         
         if not data:
@@ -113,15 +113,4 @@ elif menu == "설문 결과 확인하기":
             
             with col1:
                 if "어느 학교를 다니나요" in df.columns:
-                    st.write("**[학교급별 참여 비율]**")
-                    school_counts = df["어느 학교를 다니나요"].value_counts()
-                    st.bar_chart(school_counts)
-                    
-            with col2:
-                if "학교 가는 것을 좋아하나요?" in df.columns:
-                    st.write("**[학교가 좋은지 여부]**")
-                    like_counts = df["학교 가는 것을 좋아하나요?"].value_counts()
-                    st.bar_chart(like_counts)
-                    
-    except Exception as e:
-        st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {e}")
+                    st.write("**
